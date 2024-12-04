@@ -7,5 +7,19 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-    res.send("hi");
+
+
+    if (req.method === "POST") {
+
+        const { name, email, password } = req.body;
+
+        const { error } = await supabase
+            .from('users')
+            .insert({ name: "dil", email: "dil", password_hash: "dil" })
+
+        res.send("success");
+    }
+
+
+    // res.send("hi");
 }
