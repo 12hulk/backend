@@ -5,7 +5,7 @@ const pool = createClient(
     "https://ekdoxzpypavhtoklntqv.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA"
 );
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -32,8 +32,8 @@ export default async function handler(req, res) {
             }
 
             // Hash the password
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
+
+            const hashedPassword = await bcrypt.hash(password, 10);
 
             // Insert the new user
             const { data: newUser, error: insertError } = await supabase
