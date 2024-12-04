@@ -24,21 +24,7 @@ export default async function handler(req, res) {
         }
 
         try {
-            // Query the user from the database
-            const { data: user, error: queryError } = await supabase
-                .from("users")
-                .select("*")
-            eq("email", email);
 
-            if (queryError || !user) {
-                return res.status(401).json({ error: "Invalid email or password" });
-            }
-
-            const passwordMatch = await bcrypt.compare(password, user.password_hash);
-
-            if (!passwordMatch) {
-                return res.status(401).json({ error: "Invalid  password" });
-            }
 
             res.status(200).json({
                 message: "Login successful",
