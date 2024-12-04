@@ -18,27 +18,24 @@ export default async function handler(req, res) {
         try {
             // Insert new user into the 'users' table
             const { data, error } = await supabase
-                .from('users')
-                .insert([
-                    {
-                        name,
-                        email,
-                        password_hash, // Use dynamic data from POST request
-                    }
-                ]);
+                .from("users")
+                .upsert([{ name, email, password_hash }]);  // Using upsert instead of insert for better behavior
 
-            // Check for any error during the insert operation
+            // Check if there's an error during the insert
             if (error) {
-                console.error("Error inserting user:", error.message);
+                console.error("Error during insert:", error.message);
                 return res.status(500).json({ message: "Error inserting user", error: error.message });
             }
 
-            // If insertion was successful, respond with success
-            res.status(201).json({
-                message: "User created successfully",
-                user: data[0], // Return the created user data
-            });
-
+            // If no error, respond with success
+            if (data && data.length > 0) {
+                res.status(201).json({
+                    message: "User created successfully",
+                    user: data[0], // Return the created user data
+                });
+            } else {
+                return res.status(500).json({ message: "User insertion failed. No data returned." });
+            }
         } catch (err) {
             // Handle any unexpected errors
             console.error("Unexpected error:", err);
