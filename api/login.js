@@ -1,10 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
+const crypto = require('crypto');
+import jwt from "jsonwebtoken";
+const secret = crypto.randomBytes(64).toString('hex'); // 64 bytes = 128 characters
+console.log(secret); // Print the secret key
+
 
 const supabase = createClient(
     "https://ekdoxzpypavhtoklntqv.supabase.co",
-    "your-anon-key"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA"
 );
+
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', 'https://file-sharing-website-vuzt.vercel.app');

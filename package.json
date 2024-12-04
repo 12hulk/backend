@@ -3,6 +3,8 @@
     "@supabase/supabase-js": "^2.46.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
-    "init": "^0.1.2"
+    "crypto": "^1.0.1",
+    "init": "^0.1.2",
+    "jsonwebtoken": "^9.0.2"
   }
 }
