@@ -32,7 +32,7 @@ export default async function handler(req, res) {
             const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
             if (!passwordMatch) {
-                return res.status(401).json({ error: "Invalid email or password" });
+                return res.status(401).json({ error: "Invalid  password" });
             }
 
             res.status(200).json({
