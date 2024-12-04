@@ -8,12 +8,23 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
+        const { name, email, password_hash } = req.body;
+
+        // Validate inputs
+        if (!name || !email || !password_hash) {
+            return res.status(400).json({ message: "All fields (name, email, password_hash) are required" });
+        }
+
         try {
             // Insert new user into the 'users' table
             const { data, error } = await supabase
                 .from('users')
                 .insert([
-                    { name: "dil", email: "dil", password_hash: "dil" }
+                    {
+                        name,
+                        email,
+                        password_hash, // Use dynamic data from POST request
+                    }
                 ]);
 
             // Check for any error during the insert operation
@@ -25,7 +36,7 @@ export default async function handler(req, res) {
             // If insertion was successful, respond with success
             res.status(201).json({
                 message: "User created successfully",
-                user: data[0] // Return the created user data
+                user: data[0], // Return the created user data
             });
 
         } catch (err) {
