@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
-        const { name, email, password_hash } = req.body;
+        const { name } = req.body;
 
         // Validate inputs
         if (!name || !email || !password_hash) {
@@ -21,9 +21,8 @@ export default async function handler(req, res) {
                 .from('users')
                 .insert([
                     {
-                        name,
-                        email,
-                        password_hash, // Use dynamic data from POST request
+                        name
+
                     }
                 ]);
 
