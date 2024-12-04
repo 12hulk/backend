@@ -28,13 +28,13 @@ export default async function handler(req, res) {
             return res.status(500).json({ message: "Error retrieving files from Supabase", error });
         }
 
-        // If files are retrieved, send them back to the client
+        // If files are retrieved, send them back to the client as an array
         const files = data.map((file) => ({
             filename: file.name,
-            file_path: `https://https://ekdoxzpypavhtoklntqv.supabase.co/storage/v1/object/public/uploads/${file.name}`,
+            file_path: `https://ekdoxzpypavhtoklntqv.supabase.co/storage/v1/object/public/uploads/${file.name}`,
         }));
 
-        res.status(200).json({ files });
+        res.status(200).json(files); // Send the files as an array
     } catch (error) {
         console.error("Error retrieving files:", error);
         res.status(500).json({ message: "Failed to retrieve files", error });
