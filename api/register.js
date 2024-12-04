@@ -8,6 +8,10 @@ const supabase = createClient(
 
 
 export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', 'https://file-sharing-website-vuzt.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     if (req.method === 'POST') {
         const { name, email, password } = req.body;
 
