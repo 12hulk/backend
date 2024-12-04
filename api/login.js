@@ -28,8 +28,7 @@ export default async function handler(req, res) {
             const { data: user, error: queryError } = await supabase
                 .from("users")
                 .select("*")
-                .eq("email", email)
-                .single(); // This ensures only one record is returned
+            eq("email", email);
 
             if (queryError || !user) {
                 return res.status(401).json({ error: "Invalid email or password" });
