@@ -1,9 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
-const crypto = require('crypto');
-import jwt from "jsonwebtoken";
-const secret = crypto.randomBytes(64).toString('hex'); // 64 bytes = 128 characters
-console.log(secret); // Print the secret key
 
 
 const supabase = createClient(
@@ -45,6 +41,13 @@ export default async function handler(req, res) {
             if (!user) {
                 return res.status(401).json({ error: "Invalid email or password" });
             }
+            // Compare password hashes
+            const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+            if (!passwordMatch) {
+                return res.status(401).json({ error: "Invalid password" });
+            }
+
 
             res.status(200).json({
                 message: "Login successful",
