@@ -24,7 +24,7 @@ export default async function handler(req, res) {
             // Optional: Add additional user info like username to a "users" table
             const { error: insertError } = await supabase
                 .from('users')
-                .insert([{ email, username, password: hashedPassword }]);  // Store the hashed password
+                .insert([{ email: email, username: username, password: hashedPassword }]);  // Store the hashed password
 
             if (insertError) {
                 return res.status(400).json({ error: insertError.message });
