@@ -18,21 +18,26 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         const { email, password } = req.body;
 
-
         if (!email || !password) {
             return res.status(400).json({ error: "Email and password are required" });
         }
 
         try {
+            // Query the user from the database
+            const { data: user, error: queryError } = await supabase
+                .from("users")
+                .select("*")
+                .eq("email", email)
+                .single(); // Ensure only one result is returned
 
+            // If there’s an error fetching or no user found
+            if (queryError) {
+                console.error("Query error:", queryError); // Log the query error for debugging
+                return res.status(500).json({ error: "Error querying the database" });
+            }
 
-            const { data, error } = await supabase
-                .from('users')
-                .select('password_hash')
-                .eq('email', email)
-
-            if (!data || error) {
-                return res.status(401).json({ error: error });
+            if (!user) {
+                return res.status(401).json({ error: "Invalid email or password" });
             }
 
             res.status(200).json({
