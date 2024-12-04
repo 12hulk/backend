@@ -7,55 +7,5 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-    if (req.method === "POST") {
-        const { name, email, password } = req.body;
-
-        // Input validation
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email format" });
-        }
-
-        try {
-            // Check if the email is already registered
-            const { data: existingUser, error: existingUserError } = await supabase
-                .from("users")
-                .select("*")
-                .eq("email", email);
-
-            if (existingUserError) throw existingUserError;
-
-            if (existingUser.length > 0) {
-                return res.status(400).json({ message: "Email is already registered" });
-            }
-
-            // Insert the new user with plain password
-            const { data: newUser, error: insertError } = await supabase
-                .from("users")
-                .insert([
-                    {
-                        name,
-                        email,
-                        password_hash: password, // Store plain password here
-                    },
-                ])
-                .select("id, name, email");
-
-            if (insertError) throw insertError;
-
-            res.status(201).json({
-                message: "User registered successfully",
-                user: newUser[0],
-            });
-        } catch (error) {
-            console.error("Error during registration:", error.message);
-            res.status(500).json({ message: "Internal server error" });
-        }
-    } else {
-        res.status(405).json({ message: "Method Not Allowed" });
-    }
+    res.send("hi");
 }
