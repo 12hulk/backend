@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
             const { data, error } = await supabase
                 .from('users')
-                .select('*')
+                .select('password_hash')
                 .eq('email', email)
 
             if (!data || error) {
