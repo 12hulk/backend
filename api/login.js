@@ -26,6 +26,15 @@ export default async function handler(req, res) {
         try {
 
 
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', email)
+
+            if (!data || error) {
+                return res.status(401).json({ error: error });
+            }
+
             res.status(200).json({
                 message: "Login successful",
                 token: "yes", // Replace this with actual token generation if needed
