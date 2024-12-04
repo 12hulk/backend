@@ -19,15 +19,7 @@ export default async function handler(req, res) {
             // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            // Create user in Supabase (or any service)
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password: hashedPassword, // Use hashed password here if you are doing it manually
-            });
 
-            if (error) {
-                return res.status(400).json({ error: error.message });
-            }
 
             // Optional: Add additional user info like username to a "users" table
             const { error: insertError } = await supabase
