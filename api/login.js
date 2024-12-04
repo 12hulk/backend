@@ -18,14 +18,22 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         const { email, password } = req.body;
 
+
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email and password are required" });
+        }
+
         try {
-            const { data: user, error } = await supabase
+            // Query the user from the database
+            const { data: user, error: queryError } = await supabase
                 .from("users")
                 .select("*")
                 .eq("email", email)
-                .single();
+                .single(); // This ensures only one record is returned
 
-
+            if (queryError || !user) {
+                return res.status(401).json({ error: "Invalid email or password" });
+            }
 
             const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
