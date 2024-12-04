@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-
+import bcrypt from "bcryptjs";
 // Initialize Supabase client
 const supabase = createClient(
     "https://ekdoxzpypavhtoklntqv.supabase.co",
@@ -40,16 +40,14 @@ export default async function handler(req, res) {
             }
 
             // Hash the password
-
-
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
 
             // Insert the new user
-            const { data: newUser, error: insertError } = await supabase
-                .from('users')
-                .insert([{ name, email, password_hash: password }])
-                .select()
+            const { data: newUser, error } = await supabase
+                .from("users")
+                .insert([{ name, email, password_hash: hashedPassword }])
                 .single();
-
             if (insertError) {
                 throw insertError;
             }
