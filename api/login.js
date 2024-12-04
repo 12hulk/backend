@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             // Query the user from the database
             const { data: user, error: queryError } = await supabase
                 .from("users")
-                .select("*")
+                .select()
                 .eq("email", email)
                 .single(); // Ensure only one result is returned
 
