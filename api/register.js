@@ -7,44 +7,43 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-    if (req.method === "POST") {
-        const { name } = req.body;
+    if (req.method === 'POST') {
+        const { email, password, username } = req.body;
 
-        // Validate inputs
-        if (!name || !email || !password_hash) {
-            return res.status(400).json({ message: "All fields (name, email, password_hash) are required" });
+        // Input validation
+        if (!email || !password || !username) {
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
         try {
-            // Insert new user into the 'users' table
-            const { data, error } = await supabase
-                .from('users')
-                .insert([
-                    {
-                        name
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
 
-                    }
-                ]);
-
-            // Check for any error during the insert operation
-            if (error) {
-                console.error("Error inserting user:", error.message);
-                return res.status(500).json({ message: "Error inserting user", error: error.message });
-            }
-
-            // If insertion was successful, respond with success
-            res.status(201).json({
-                message: "User created successfully",
-                user: data[0], // Return the created user data
+            // Create user in Supabase (or any service)
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password: hashedPassword, // Use hashed password here if you are doing it manually
             });
 
+            if (error) {
+                return res.status(400).json({ error: error.message });
+            }
+
+            // Optional: Add additional user info like username to a "users" table
+            const { error: insertError } = await supabase
+                .from('users')
+                .insert([{ email, username, password: hashedPassword }]);  // Store the hashed password
+
+            if (insertError) {
+                return res.status(400).json({ error: insertError.message });
+            }
+
+            // Respond with success
+            res.status(200).json({ message: 'User registered successfully', data });
         } catch (err) {
-            // Handle any unexpected errors
-            console.error("Unexpected error:", err);
-            res.status(500).json({ message: "Internal Server Error", error: err.message });
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     } else {
-        // Handle non-POST requests
-        res.status(405).json({ message: "Method Not Allowed" });
+        res.status(405).json({ error: 'Method Not Allowed' });
     }
 }
