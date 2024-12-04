@@ -44,7 +44,7 @@ export default async function handler(req, res) {
             const hashedPassword = await bcrypt.hash(password, salt);
 
             // Insert the new user
-            const { data: newUser, error } = await supabase
+            const { data: newUser, error: insertError } = await supabase
                 .from("users")
                 .insert([{ name, email, password_hash: hashedPassword }])
                 .single();
