@@ -1,10 +1,10 @@
-// api/get-data.js
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 // Replace these with your Supabase project details
-const supabase = createClient('https://ekdoxzpypavhtoklntqv.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA');
-import bcrypt from "bcryptjs";
-
+const supabase = createClient(
+    "https://ekdoxzpypavhtoklntqv.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA"
+);
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
@@ -33,18 +33,14 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: "Email is already registered" });
             }
 
-            // Hash the password
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-
-            // Insert the new user into the database
+            // Insert the new user with plain password
             const { data: newUser, error: insertError } = await supabase
                 .from("users")
                 .insert([
                     {
                         name,
                         email,
-                        password_hash: hashedPassword,
+                        password_hash: password, // Store plain password here
                     },
                 ])
                 .select("id, name, email");
