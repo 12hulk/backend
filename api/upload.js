@@ -6,7 +6,7 @@ const supabase = createClient(
 
 export const config = {
     api: {
-        bodyParser: false, // Disable Next.js body parsing for file uploads
+        bodyParser: false,
     },
 };
 
