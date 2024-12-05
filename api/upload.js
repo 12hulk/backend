@@ -1,85 +1,57 @@
-import { createClient } from "@supabase/supabase-js";
-import { IncomingForm } from "formidable";
-
-// Initialize Supabase Client
+import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(
-    "https://ekdoxzpypavhtoklntqv.supabase.co",  // Your Supabase URL
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA"  // Your Supabase Anon Key
+    "https://ekdoxzpypavhtoklntqv.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA"
 );
 
 export const config = {
     api: {
-        bodyParser: false, // Disabling default body parser to handle file uploads
+        bodyParser: false, // Disable Next.js body parsing for file uploads
     },
 };
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', 'https://file-sharing-website-two.vercel.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    // Handle preflight request
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    if (req.method === "POST") {
-        const form = new IncomingForm();
+    try {
+        const chunks = [];
+        for await (const chunk of req) {
+            chunks.push(chunk);
+        }
 
-        form.parse(req, async (err, fields, files) => {
-            if (err) {
-                console.error("Error parsing form data:", err);
-                return res.status(500).json({ message: "Error parsing form data", error: err });
-            }
+        const buffer = Buffer.concat(chunks);
+        const fileName = req.headers['file-name']; // File name from headers
+        const contentType = req.headers['content-type']; // Content type from headers
 
-            const file = files.file ? files.file[0] : null;
-            if (!file) {
-                return res.status(400).json({ message: "No file uploaded" });
-            }
+        if (!fileName || !buffer.length) {
+            return res.status(400).json({ error: 'Invalid file data' });
+        }
 
-            try {
-                // Upload file to Supabase Storage
-                const { data, error } = await supabase.storage
-                    .from("uploads") // Assuming your bucket is named 'uploads'
-                    .upload(`public/${Date.now()}_${file.originalFilename}`, file.file, {
-                        contentType: file.mimetype,
-                    });
+        // Upload the file to Supabase Storage
+        const { data, error } = await supabase.storage
+            .from('uploads') // Replace with your bucket name
+            .upload(fileName, buffer, {
+                contentType,
+            });
 
-                if (error) {
-                    console.error("Error uploading to Supabase:", error);
-                    return res.status(500).json({ message: "Error uploading to Supabase", error });
-                }
+        if (error) {
+            return res.status(500).json({ error: error.message });
+        }
 
-                // Save file metadata in Supabase database (PostgreSQL)
-                const { data: metadata, error: metadataError } = await supabase
-                    .from("files")  // Assuming you have a 'files' table
-                    .insert([
-                        {
-                            filename: file.originalFilename,
-                            file_path: data.Key,  // The Supabase storage path
-                            mime_type: file.mimetype,
-                            size: file.size,
-                        }
-                    ])
-                    .single(); // Ensures we get a single row back
+        // Generate a public URL for the uploaded file
+        const { publicURL, error: urlError } = supabase.storage
+            .from('uploads')
+            .getPublicUrl(fileName);
 
-                if (metadataError) {
-                    console.error("Error saving metadata:", metadataError);
-                    return res.status(500).json({ message: "Error saving file metadata", error: metadataError });
-                }
+        if (urlError) {
+            return res.status(500).json({ error: urlError.message });
+        }
 
-                // Respond with success message and file metadata
-                res.status(200).json({
-                    message: "File uploaded successfully!",
-                    file: metadata, // Return file metadata
-                });
-            } catch (error) {
-                console.error("Error during file upload:", error);
-                res.status(500).json({ message: "File upload failed", error });
-            }
-        });
-    } else {
-        // Return method not allowed for non-POST requests
-        res.status(405).json({ message: "Method not allowed" });
+        return res.status(200).json({ publicURL });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 }
