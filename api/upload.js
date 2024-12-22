@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import formidable from 'formidable';
+import { IncomingForm } from 'formidable';  // Correctly import IncomingForm
 import fs from 'fs';
 
 const supabase = createClient(
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     // Handle file upload (only POST method)
     if (req.method === 'POST') {
-        const form = new formidable();  // Use formidable() directly instead of IncomingForm()
+        const form = new IncomingForm();  // Use IncomingForm constructor correctly
 
         // Parse the incoming request to get the file data
         form.parse(req, async (err, fields, files) => {
