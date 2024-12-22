@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { IncomingForm } from 'formidable';  // Correctly import IncomingForm
 import fs from 'fs';
-import formidable from 'formidable';
 
 const supabase = createClient(
     "https://ekdoxzpypavhtoklntqv.supabase.co",
