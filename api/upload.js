@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     // Handle file upload (only POST method)
     if (req.method === 'POST') {
-        const form = new formidable.IncomingForm();
+        const form = new IncomingForm();
 
         // Parse the incoming request to get the file data
         form.parse(req, async (err, fields, files) => {
