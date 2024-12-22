@@ -25,14 +25,18 @@ export default async function handler(req, res) {
 
     // Handle file upload (only POST method)
     if (req.method === 'POST') {
-        const form = new formidable.Formidable(); // Corrected for new version of formidable
+        const form = new formidable();  // Use formidable() directly instead of IncomingForm()
 
         // Parse the incoming request to get the file data
         form.parse(req, async (err, fields, files) => {
             if (err) {
-                console.error(err);
+                console.error('Error parsing the file upload:', err);
                 return res.status(500).json({ error: 'Error parsing the file upload' });
             }
+
+            // Log the fields and files to debug if necessary
+            console.log('Fields:', fields);
+            console.log('Files:', files);
 
             // Retrieve file information
             const file = files.file[0]; // Assuming the key is 'file'
@@ -55,6 +59,7 @@ export default async function handler(req, res) {
                     });
 
                 if (uploadError) {
+                    console.error('Error uploading file:', uploadError);
                     return res.status(500).json({ error: uploadError.message });
                 }
 
@@ -64,6 +69,7 @@ export default async function handler(req, res) {
                     .getPublicUrl(fileName);
 
                 if (urlError) {
+                    console.error('Error getting public URL:', urlError);
                     return res.status(500).json({ error: urlError.message });
                 }
 
