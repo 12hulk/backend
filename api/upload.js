@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
-import { IncomingForm } from 'formidable'; // Correct import for IncomingForm
+import { IncomingForm } from 'formidable';
 import fs from 'fs';
 
 // Initialize Supabase client
+
 const supabase = createClient(
     "https://ekdoxzpypavhtoklntqv.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZG94enB5cGF2aHRva2xudHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNzQ3NDAsImV4cCI6MjA0ODY1MDc0MH0.FyHH1ee-dfBThvAUeL4SaqCO6sJZzQ-2Scnnv-bInOA"
@@ -10,7 +11,7 @@ const supabase = createClient(
 
 export const config = {
     api: {
-        bodyParser: false, // Disables Next.js default body parser for file upload
+        bodyParser: false, // Disable Next.js default body parser for file upload
     },
 };
 
@@ -19,58 +20,74 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, file-name');
 
-    // Handle preflight request (for CORS)
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    // Handle file upload (POST method)
-    if (req.method === "POST") {
-        const busboy = require("busboy");
-        const bb = busboy({ headers: req.headers });
-        let email, fileBuffer, fileName;
+    if (req.method === 'POST') {
+        const form = new IncomingForm();
 
-        bb.on("field", (fieldname, val) => {
-            if (fieldname === "email") email = val;
-        });
-
-        bb.on("file", (fieldname, file, info) => {
-            fileName = info.filename;
-            file.on("data", (data) => {
-                fileBuffer = data;
-            });
-        });
-
-        bb.on("finish", async () => {
-            if (!email || !fileBuffer) {
-                return res.status(400).json({ error: "Invalid request" });
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: 'Error parsing the file upload' });
             }
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from("public")
-                .upload(`files/${fileName}`, fileBuffer, {
-                    contentType: "application/octet-stream",
-                });
-
-            if (uploadError) {
-                return res.status(500).json({ error: "Failed to upload file" });
+            const file = files.file[0];
+            if (!file) {
+                return res.status(400).json({ error: 'No file uploaded' });
             }
 
-            const fileUrl = supabase.storage.from("public").getPublicUrl(uploadData.path).publicUrl;
+            try {
+                const fileBuffer = await fs.promises.readFile(file.filepath);
+                const fileName = file.originalFilename;
+                const contentType = file.mimetype;
 
-            const { data: dbData, error: dbError } = await supabase
-                .from("files")
-                .insert({ user_email: email, file_name: fileName, file_url: fileUrl });
+                // Upload the file to Supabase storage
+                const { data, error: uploadError } = await supabase.storage
+                    .from('public') // Your Supabase bucket name
+                    .upload(fileName, fileBuffer, {
+                        contentType: contentType,
+                        upsert: true,
+                    });
 
-            if (dbError) {
-                return res.status(500).json({ error: "Failed to save file in database" });
+                if (uploadError) {
+                    return res.status(500).json({ error: uploadError.message });
+                }
+
+                // Get the public URL of the uploaded file
+                const { publicURL, error: urlError } = supabase.storage
+                    .from('public') // Your Supabase bucket name
+                    .getPublicUrl(fileName);
+
+                if (urlError) {
+                    return res.status(500).json({ error: urlError.message });
+                }
+
+                // Insert file details into the `files` table
+                const { data: fileData, error: insertError } = await supabase
+                    .from('files')
+                    .insert([
+                        {
+                            user_email: fields.email, // Assuming 'email' is passed in the form data
+                            file_name: fileName,
+                            file_url: publicURL,
+                            uploaded_at: new Date(),
+                        },
+                    ]);
+
+                if (insertError) {
+                    return res.status(500).json({ error: insertError.message });
+                }
+
+                // Respond with the public URL of the uploaded file
+                return res.status(200).json({ publicURL });
+            } catch (error) {
+                console.error('File upload failed:', error);
+                return res.status(500).json({ error: 'File upload failed' });
             }
-
-            res.status(201).json({ message: "File uploaded successfully", file: dbData });
         });
-
-        req.pipe(bb);
     } else {
-        res.status(405).json({ error: "Method not allowed" });
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 }
