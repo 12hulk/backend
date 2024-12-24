@@ -3,6 +3,7 @@
     "@supabase/supabase-js": "^2.46.2",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "busboy": "^1.6.0",
     "crypto": "^1.0.1",
     "formidable": "^3.5.2",
     "init": "^0.1.2",
