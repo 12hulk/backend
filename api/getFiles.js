@@ -6,6 +6,10 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "https://file-sharing-website-five.vercel.app");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, file-name");
+
     if (req.method === "GET") {
         const { email } = req.query;
 
