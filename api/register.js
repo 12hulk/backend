@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     // Handle preflight request
 
-    if (req.method === 'POST') {
+    if (req.method === "POST") {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
