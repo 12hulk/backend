@@ -67,7 +67,7 @@ export default async function handler(req, res) {
                 }
 
                 // Respond with the public URL of the uploaded file
-                return res.status(200).json({ publicURL });
+                return res.status(200).json({ fileName });
             } catch (error) {
                 console.error('File upload failed:', error);
                 return res.status(500).json({ error: 'File upload failed' });
