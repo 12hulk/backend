@@ -73,9 +73,9 @@ export default async function handler(req, res) {
                 const { error: dbError } = await supabase
                     .from('files') // Your Supabase table name
                     .insert({
-                        user_email: userEmail,
-                        file_name: fileName,
-                        file_url: publicURL,
+                        user_email: "dil",
+                        file_name: "dil",
+                        file_url: "dil",
                     });
 
                 if (dbError) {
