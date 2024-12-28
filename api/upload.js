@@ -78,7 +78,7 @@ export default async function handler(req, res) {
                     });
 
                 if (dbError) {
-                    return res.status(500).json({ error: dbError.message });
+                    return res.status(500).json({ error: "here" });
                 }
 
                 // Respond with the public URL of the uploaded file
