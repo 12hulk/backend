@@ -69,7 +69,7 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: urlError.message });
                 }
 
-                const publicURL = data1.publicUrl;
+                const publicURL = data1.publicURL;
 
 
                 // Respond with the file metadata (e.g., file name and URL)
