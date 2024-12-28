@@ -16,7 +16,7 @@ export const config = {
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', 'https://file-sharing-website-five.vercel.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, file-name');
 
     // Handle preflight request (for CORS)
