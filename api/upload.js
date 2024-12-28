@@ -17,7 +17,7 @@ export const config = {
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', 'https://file-sharing-website-five.vercel.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, file-name');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, file-name,userEmail');
 
     // Handle preflight request (for CORS)
     if (req.method === 'OPTIONS') {
@@ -65,8 +65,21 @@ export default async function handler(req, res) {
                 if (urlError) {
                     return res.status(500).json({ error: urlError.message });
                 }
-                const userEmail = fields.userEmail;
+                const userEmail = req.headers['userEmail'];
                 console.log(userEmail);
+                // Insert file metadata into the 'files' table
+                const { error: dbError } = await supabase
+                    .from('files')
+                    .insert({
+                        user_email: userEmail,
+                        file_name: fileName,
+                        file_url: publicURL,
+                    });
+
+                if (dbError) {
+                    return res.status(500).json({ error: "here" });
+                }
+
 
                 // Respond with the public URL of the uploaded file
                 return res.status(200).json({ fileName });
