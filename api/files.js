@@ -28,7 +28,7 @@ export default async function handler(req, res) {
             // Fetch files from the 'files' table for the specific user
             const { data, error } = await supabase
                 .from('files') // Your Supabase table name
-                .select('id, file_name, file_url, uploaded_at')
+                .select('file_name, file_url, uploaded_at')
                 .eq('user_email', userEmail); // Query files by user email
 
             if (error) {
