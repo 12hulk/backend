@@ -69,11 +69,10 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: urlError.message });
                 }
 
-
-
+                const publicURL = data1.publicUrl;
 
                 // Respond with the file metadata (e.g., file name and URL)
-                return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: data1, userEmail: userEmail });
+                return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: publicURL, userEmail: userEmail });
             } catch (error) {
                 console.error('File upload failed:', error);
                 return res.status(500).json({ error: 'File upload failed' });
