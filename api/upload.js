@@ -76,6 +76,7 @@ export default async function handler(req, res) {
                         user_email: userEmail,
                         file_name: fileName,
                         file_url: publicURL,
+                        uploaded_at: new Date(),
                     });
 
                 if (dbError) {
