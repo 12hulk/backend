@@ -33,7 +33,7 @@ export default async function handler(req, res) {
                 console.error(err);
                 return res.status(500).json({ error: 'Error parsing the file upload' });
             }
-            const userEmail = fields.userEmail.userEmail; // Retrieve userEmail from form fields
+            const userEmail = fields.userEmail; // Retrieve userEmail from form fields
             if (!userEmail) {
                 return res.status(400).json({ error: 'No userEmail provided' });
             }
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
 
 
                 // Respond with the file metadata (e.g., file name and URL)
-                return res.status(200).json({ fileName: fileName, fileUrl: publicURL, userEmail: userEmail });
+                return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: publicURL, userEmail: userEmail });
             } catch (error) {
                 console.error('File upload failed:', error);
                 return res.status(500).json({ error: 'File upload failed' });
