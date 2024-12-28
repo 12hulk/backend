@@ -33,7 +33,7 @@ export default async function handler(req, res) {
                 console.error(err);
                 return res.status(500).json({ error: 'Error parsing the file upload' });
             }
-            const userEmail = fields.userEmail; // Retrieve userEmail from form fields
+            const userEmail = fields.userEmail[0]; // Retrieve userEmail from form fields
             if (!userEmail) {
                 return res.status(400).json({ error: 'No userEmail provided' });
             }
@@ -61,7 +61,7 @@ export default async function handler(req, res) {
                 }
 
                 // Get the public URL of the uploaded file
-                const { publicURL, error: urlError } = supabase.storage
+                const { data1, error: urlError } = supabase.storage
                     .from('uploads')
                     .getPublicUrl(fileName);
 
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: urlError.message });
                 }
 
-
+                const publicURL = data1.publicUrl;
 
 
                 // Respond with the file metadata (e.g., file name and URL)
