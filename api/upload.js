@@ -61,7 +61,7 @@ export default async function handler(req, res) {
                 }
 
                 // Get the public URL of the uploaded file
-                const { data1, error: urlError } = supabase.storage
+                const { publicURL, error: urlError } = supabase.storage
                     .from('uploads')
                     .getPublicUrl(fileName);
 
@@ -69,10 +69,10 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: urlError.message });
                 }
 
-                const publicURL = data1.publicUrl;
+                const url = publicURL.publicUrl;
 
                 // Respond with the file metadata (e.g., file name and URL)
-                return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: publicURL, userEmail: userEmail });
+                return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: url, userEmail: userEmail });
             } catch (error) {
                 console.error('File upload failed:', error);
                 return res.status(500).json({ error: 'File upload failed' });
