@@ -65,6 +65,19 @@ export default async function handler(req, res) {
                 if (urlError) {
                     return res.status(500).json({ error: urlError.message });
                 }
+                // Insert file metadata into the 'files' table
+                const { error: dbError } = await supabase
+                    .from('files')
+                    .insert({
+                        file_name: fileName,
+                        file_url: publicUrl,
+                        user_email: userEmail,
+                        uploaded_at: new Date(),
+                    });
+
+                if (dbError) {
+                    return res.status(500).json({ error: dbError.message });
+                }
 
                 // Respond with the public URL of the uploaded file
                 return res.status(200).json({ fileName });
@@ -77,14 +90,26 @@ export default async function handler(req, res) {
 
     // Handle file deletion (DELETE method)
     else if (req.method === 'DELETE') {
-        // The filename should be passed in the request body (ensure it's JSON)
-        const { filename } = req.body; // You should send this from frontend
+        // Extract filename and userEmail from the request body
+        const { filename, userEmail } = req.body;
 
-        if (!filename) {
-            return res.status(400).json({ error: 'Filename is required' });
+        if (!filename || !userEmail) {
+            return res.status(400).json({ error: 'Filename and userEmail are required' });
         }
 
         try {
+            // Optional: Verify that the user owns the file by querying the database
+            const { data: fileRecord, error: fetchError } = await supabase
+                .from('files') // Your table name
+                .select('file_name')
+                .eq('file_name', filename)
+                .eq('user_email', userEmail)
+                .single();
+
+            if (fetchError || !fileRecord) {
+                return res.status(403).json({ error: 'File not found or unauthorized access' });
+            }
+
             // Remove the file from Supabase storage
             const { error: deleteError } = await supabase.storage
                 .from('uploads') // Your Supabase bucket name
@@ -92,6 +117,17 @@ export default async function handler(req, res) {
 
             if (deleteError) {
                 return res.status(500).json({ error: deleteError.message });
+            }
+
+            // Remove the record from the database
+            const { error: dbDeleteError } = await supabase
+                .from('files') // Your table name
+                .delete()
+                .eq('file_name', filename)
+                .eq('user_email', userEmail);
+
+            if (dbDeleteError) {
+                return res.status(500).json({ error: dbDeleteError.message });
             }
 
             return res.status(200).json({ message: 'File deleted successfully' });
