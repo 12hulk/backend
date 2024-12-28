@@ -33,7 +33,10 @@ export default async function handler(req, res) {
                 console.error(err);
                 return res.status(500).json({ error: 'Error parsing the file upload' });
             }
-
+            const userEmail = fields.userEmail; // Retrieve userEmail from form fields
+            if (!userEmail) {
+                return res.status(400).json({ error: 'No userEmail provided' });
+            }
             // Retrieve file information (assuming the key is 'file')
             const file = files.file[0];
             if (!file) {
@@ -65,8 +68,7 @@ export default async function handler(req, res) {
                 if (urlError) {
                     return res.status(500).json({ error: urlError.message });
                 }
-                const userEmail = req.headers['userEmail'];
-                console.log(userEmail);
+
                 // Insert file metadata into the 'files' table
                 const { error: dbError } = await supabase
                     .from('files')
@@ -77,7 +79,7 @@ export default async function handler(req, res) {
                     });
 
                 if (dbError) {
-                    return res.status(500).json({ error: "here" });
+                    return res.status(500).json({ error: "Error inserting file metadata" });
                 }
 
 
