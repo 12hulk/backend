@@ -66,20 +66,7 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: urlError.message });
                 }
                 const userEmail = fields.userEmail;
-
-                // Insert file metadata into the 'files' table
-                const { error: dbError } = await supabase
-                    .from('files')
-                    .insert({
-                        file_name: fileName,
-                        file_url: publicURL,
-                        user_email: userEmail,
-                        uploaded_at: new Date(),
-                    });
-
-                if (dbError) {
-                    return res.status(500).json({ error: "here" });
-                }
+                console.log(userEmail);
 
                 // Respond with the public URL of the uploaded file
                 return res.status(200).json({ fileName });
