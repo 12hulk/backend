@@ -73,7 +73,7 @@ export default async function handler(req, res) {
                     console.error(`No public URL returned for file: ${fileName}. The file might not exist in the bucket.`);
                     return;
                 }
-                const url = data1.publicUrl;
+                const url = data1.publicURL;
 
 
                 // Respond with the file metadata (e.g., file name and URL)
