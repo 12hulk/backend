@@ -61,15 +61,15 @@ export default async function handler(req, res) {
                 }
 
                 // Get the public URL of the uploaded file
-                const { publicURL, error: urlError } = supabase.storage
+                const { data1, error } = supabase.storage
                     .from('uploads')
                     .getPublicUrl(fileName);
 
-                if (urlError) {
-                    return res.status(500).json({ error: urlError.message });
+                if (error) {
+                    return res.status(500).json({ error: error.message });
                 }
 
-                const url = publicURL;
+                const url = data1.publicUrl;
 
                 // Respond with the file metadata (e.g., file name and URL)
                 return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: url, userEmail: userEmail });
