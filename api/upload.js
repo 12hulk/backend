@@ -69,7 +69,7 @@ export default async function handler(req, res) {
                 }
 
                 // Ensure the file exists in the storage bucket before proceeding
-                if (!data1) {
+                if (!data1 || !data.publicURL) {
                     console.error(`No public URL returned for file: ${fileName}. The file might not exist in the bucket.`);
                     return;
                 }
