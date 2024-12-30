@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from 'uuid';
 // Initialize Supabase client
 const supabase = createClient(
     "https://ekdoxzpypavhtoklntqv.supabase.co",
@@ -24,7 +25,8 @@ export default async function handler(req, res) {
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
-
+        const uniqueId = uuidv4();
+        console.log(uniqueId); // Example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
         try {
             // Check if user already exists
             const { data: existingUser, error: checkError } = await supabase
@@ -48,14 +50,15 @@ export default async function handler(req, res) {
             // Insert the new user
             const { data: newUser, error: insertError } = await supabase
                 .from("users")
-                .insert([{ name, email, password_hash: hashedPassword }])
+                .insert([{ name, email, password_hash: hashedPassword, unique_id: uniqueId }])
                 .single();
             if (insertError) {
                 throw insertError;
             }
 
             res.status(201).json({
-                message: "User registered successfully"
+                message: "User registered successfully",
+
 
             });
         } catch (error) {
