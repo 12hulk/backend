@@ -47,18 +47,11 @@ export default async function handler(req, res) {
             if (!passwordMatch) {
                 return res.status(401).json({ error: "Invalid password" });
             }
-            const { data: unique_id } = await supabase
-                .from("users")
-                .select("unique_id")
-                .eq("email", email)
-                .single(); // Ensure only one result is returned
 
-            const id = data.unique_id;
 
             res.status(200).json({
                 message: "Login successful",
                 token: "yes", // Replace this with actual token generation if needed
-                id: id
             });
         } catch (error) {
             console.error("Error during login:", error);
