@@ -61,7 +61,7 @@ export default async function handler(req, res) {
                 }
 
                 // Fetch public URL for the file
-                const { data1, error } = supabase.storage.from('uploads').getPublicUrl(filename);
+                const { data1, error } = supabase.storage.from('uploads').getPublicUrl(fileName);
 
                 if (error) {
                     console.error("Error fetching public URL:", error.message);
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
                 // Ensure the file exists in the storage bucket before proceeding
                 if (!data1) {
-                    console.error(`No public URL returned for file: ${filename}. The file might not exist in the bucket.`);
+                    console.error(`No public URL returned for file: ${fileName}. The file might not exist in the bucket.`);
                     return;
                 }
                 const url = data1.publicUrl;
