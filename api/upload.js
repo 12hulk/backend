@@ -49,7 +49,7 @@ export default async function handler(req, res) {
                 const contentType = file.mimetype;
 
                 // Upload the file to Supabase storage
-                const { data, error: uploadError } = await supabase.storage
+                const { error: uploadError } = await supabase.storage
                     .from('uploads') // Your Supabase bucket name
                     .upload(fileName, fileBuffer, {
                         contentType: contentType,
@@ -60,9 +60,21 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: uploadError.message });
                 }
 
+                // Fetch public URL for the file
+                const { data, error } = supabase.storage.from('uploads').getPublicUrl(fileName);
 
-                const url = "jm";
+                if (error) {
+                    console.error("Error fetching public URL:", error.message);
+                    return;
+                }
 
+                // Ensure the file exists in the storage bucket before proceeding
+                if (!data) {
+                    console.error(`No public URL returned for file: ${fileName}. The file might not exist in the bucket.`);
+                    return;
+                }
+
+                const url = data.publicUrl;
 
                 // Respond with the file metadata (e.g., file name and URL)
                 return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: url, userEmail: userEmail });
