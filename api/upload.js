@@ -60,16 +60,21 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: uploadError.message });
                 }
 
-                // Get the public URL of the uploaded file
-                const { data1, error } = supabase.storage
-                    .from('uploads')
-                    .getPublicUrl(fileName);
+                // Fetch public URL for the file
+                const { data1, error } = supabase.storage.from('uploads').getPublicUrl(filename);
 
                 if (error) {
-                    return res.status(500).json({ error: error.message });
+                    console.error("Error fetching public URL:", error.message);
+                    return;
                 }
 
+                // Ensure the file exists in the storage bucket before proceeding
+                if (!data1) {
+                    console.error(`No public URL returned for file: ${filename}. The file might not exist in the bucket.`);
+                    return;
+                }
                 const url = data1.publicUrl;
+
 
                 // Respond with the file metadata (e.g., file name and URL)
                 return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: url, userEmail: userEmail });
