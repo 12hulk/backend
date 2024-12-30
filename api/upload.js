@@ -76,6 +76,20 @@ export default async function handler(req, res) {
 
                 const url = data.publicUrl;
 
+                // Insert file metadata into the 'files' table
+                const { error: dbError } = await supabase
+                    .from('files')
+                    .insert({
+                        user_email: userEmail,
+                        file_name: fileName,
+                        file_url: url,
+                        uploaded_at: new Date(),
+                    });
+
+                if (dbError) {
+                    return res.status(500).json({ error: "Error inserting file metadata" });
+                }
+
                 // Respond with the file metadata (e.g., file name and URL)
                 return res.status(200).json({ fields: fields, fileName: fileName, fileUrl: url, userEmail: userEmail });
             } catch (error) {
